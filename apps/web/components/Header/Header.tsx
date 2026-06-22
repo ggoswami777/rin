@@ -26,7 +26,7 @@ export function Header() {
         color: "#fff",
         userSelect: "none"
       }}>
-        RIN
+       RIN
       </div>
 
       {/* Center: Navigation Navbar */}
