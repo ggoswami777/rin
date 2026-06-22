@@ -35,6 +35,7 @@ export function Header() {
           items={[
             { label: "Home", href: "#home" },
             { label: "Dashboard", href: "#dashboard" },
+            { label: "Docs", href: "#dashboard" },
             { label: "Pricing", href: "#pricing" },
             { label: "About", href: "#about" },
           ]}

@@ -19,6 +19,7 @@ uniform float uAmplitude;
 uniform vec3 uColorStops[3];
 uniform vec2 uResolution;
 uniform float uBlend;
+uniform vec2 uMouse;
 
 out vec4 fragColor;
 
@@ -96,10 +97,11 @@ void main() {
   vec3 rampColor;
   COLOR_RAMP(colors, uv.x, rampColor);
   
-  float noise = snoise(vec2(uv.x * 1.4 + uTime * 0.08, uTime * 0.12)) * 0.5 * uAmplitude;
+  // Shift noise coordinate based on mouse position and faster time factor
+  float noise = snoise(vec2(uv.x * 1.5 + uTime * 0.35 + uMouse.x * 0.2, uTime * 0.22 + uMouse.y * 0.2)) * 0.55 * uAmplitude;
   
   // Waves descend from the top (uv.y = 1.0) and fall downward
-  float wave = (1.0 - uv.y) - (0.0 + noise * 0.3);
+  float wave = (1.0 - uv.y) - (0.0 + noise * 0.3 + (1.0 - uMouse.y) * 0.08);
   
   // A larger transition limit (1.25) allows the waves to fall much deeper down the page
   float intensity = smoothstep(1.25, 0.0, wave);
@@ -154,6 +156,14 @@ export default function Aurora(props: AuroraProps) {
     }
     window.addEventListener('resize', resize);
 
+    // Track mouse coordinates for interactive influence
+    const mouse = { x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5 };
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.targetX = e.clientX / window.innerWidth;
+      mouse.targetY = 1.0 - e.clientY / window.innerHeight;
+    };
+    window.addEventListener('mousemove', onMouseMove);
+
     const geometry = new Triangle(gl);
     if (geometry.attributes.uv) {
       delete geometry.attributes.uv;
@@ -172,7 +182,8 @@ export default function Aurora(props: AuroraProps) {
         uAmplitude: { value: amplitude },
         uColorStops: { value: colorStopsArray },
         uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
-        uBlend: { value: blend }
+        uBlend: { value: blend },
+        uMouse: { value: [0.5, 0.5] }
       }
     });
 
@@ -182,11 +193,17 @@ export default function Aurora(props: AuroraProps) {
     let animateId = 0;
     const update = (t: number) => {
       animateId = requestAnimationFrame(update);
-      const { time = t * 0.01, speed = 1.0 } = propsRef.current;
+      const { speed = 1.0 } = propsRef.current;
+      
+      // Interpolate coordinates for smooth mouse lag effect (0.04 factor)
+      mouse.x += (mouse.targetX - mouse.x) * 0.035;
+      mouse.y += (mouse.targetY - mouse.y) * 0.035;
+
       if (program) {
-        program.uniforms.uTime.value = time * speed * 0.1;
+        program.uniforms.uTime.value = t * 0.001 * speed;
         program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
         program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
+        program.uniforms.uMouse.value = [mouse.x, mouse.y];
         const stops = propsRef.current.colorStops ?? colorStops;
         program.uniforms.uColorStops.value = stops.map((hex: string) => {
           const c = new Color(hex);
@@ -202,6 +219,7 @@ export default function Aurora(props: AuroraProps) {
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', onMouseMove);
       if (ctn && gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);
       }
