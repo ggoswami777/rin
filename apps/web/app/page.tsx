@@ -4,6 +4,8 @@ import { Header } from "../components/Header/Header";
 import SplitText from "../components/SplitText/SplitText";
 import { motion } from "framer-motion";
 import Aurora from "../components/Aurora/Aurora";
+import MorphingWord from "../components/MorphingWord/MorphingWord";
+import "./page.css";
 
 const Page = () => {
   const GitHubIcon = () => (
@@ -21,188 +23,6 @@ const Page = () => {
         backgroundColor: "#000",
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-        * {
-          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-        @keyframes aurora-drift {
-          0%, 100% { opacity: 0.7; transform: scale(1) translate(0, 0); }
-          33% { opacity: 0.9; transform: scale(1.05) translate(10px, -8px); }
-          66% { opacity: 0.75; transform: scale(0.98) translate(-5px, 5px); }
-        }
-        @keyframes aurora-drift-2 {
-          0%, 100% { opacity: 0.5; transform: scale(1) translate(0, 0) rotate(0deg); }
-          50% { opacity: 0.7; transform: scale(1.1) translate(-15px, 10px) rotate(2deg); }
-        }
-        .aurora-bg {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 0;
-          overflow: hidden;
-          background: #0a0a0a;
-        }
-        .aurora-layer-1 {
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 80% 60% at 0% 100%, rgba(120, 50, 200, 0.45) 0%, transparent 65%),
-            radial-gradient(ellipse 60% 50% at 10% 90%, rgba(160, 60, 220, 0.3) 0%, transparent 55%);
-          animation: aurora-drift 12s ease-in-out infinite;
-        }
-        .aurora-layer-2 {
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 70% 50% at 20% 80%, rgba(100, 40, 180, 0.35) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 40% at 50% 70%, rgba(140, 60, 200, 0.15) 0%, transparent 50%);
-          animation: aurora-drift-2 15s ease-in-out infinite;
-        }
-        .aurora-beam {
-          position: absolute;
-          bottom: -20%;
-          left: -10%;
-          width: 80%;
-          height: 120%;
-          background: linear-gradient(
-            55deg,
-            rgba(130, 50, 210, 0.3) 0%,
-            rgba(100, 40, 180, 0.15) 30%,
-            transparent 60%
-          );
-          filter: blur(40px);
-          animation: aurora-drift 18s ease-in-out infinite reverse;
-        }
-        .aurora-beam-2 {
-          position: absolute;
-          bottom: -10%;
-          left: 5%;
-          width: 60%;
-          height: 100%;
-          background: linear-gradient(
-            65deg,
-            rgba(160, 80, 240, 0.2) 0%,
-            rgba(120, 50, 200, 0.1) 25%,
-            transparent 50%
-          );
-          filter: blur(60px);
-          animation: aurora-drift-2 20s ease-in-out infinite;
-        }
-        .aurora-noise {
-          position: absolute;
-          inset: 0;
-          opacity: 0.03;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-size: 128px 128px;
-          pointer-events: none;
-        }
-        .code-window {
-          animation: float 4s ease-in-out infinite;
-          background: rgba(255,255,255,0.04);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 14px;
-          overflow: hidden;
-          width: 100%;
-          max-width: 520px;
-          transition: box-shadow 0.5s ease, border-color 0.5s ease;
-          box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-        }
-        .code-window:hover {
-          box-shadow:
-            0 0 20px rgba(140, 60, 220, 0.2),
-            0 0 60px rgba(120, 50, 200, 0.12),
-            0 0 100px rgba(160, 80, 240, 0.08);
-          border-color: rgba(140, 60, 220, 0.25);
-        }
-        .code-titlebar {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 12px 16px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot-red { background: #FF5F57; }
-        .dot-yellow { background: #FFBD2E; }
-        .dot-green { background: #28CA41; }
-        .code-body {
-          padding: 20px 24px;
-          font-family: "Geist Mono", "Fira Code", monospace;
-          font-size: 13px;
-          line-height: 1.8;
-          text-align: left;
-        }
-        .c-comment { color: rgba(255,255,255,0.25); }
-        .c-keyword { color: #c792ea; }
-        .c-fn { color: #82aaff; }
-        .c-str { color: #c3e88d; }
-        .c-prop { color: #57f1db; }
-        .c-num { color: #f78c6c; }
-        .c-white { color: rgba(255,255,255,0.75); }
-        .hero-heading {
-          font-size: clamp(2.5rem, 5vw, 4rem);
-          font-weight: 700;
-          letter-spacing: -0.03em;
-          color: #FFFFFF;
-          margin: 0;
-          line-height: 1.15;
-          display: block;
-        }
-        .hero-heading-purple {
-          font-size: clamp(2.5rem, 5vw, 4rem);
-          font-weight: 700;
-          letter-spacing: -0.03em;
-          margin: 0;
-          line-height: 1.15;
-          display: inline-block;
-        }
-        .hero-heading-purple .split-char {
-          background: linear-gradient(135deg, #c084fc, #a855f7, #9333ea, #7c3aed);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          display: inline-block;
-        }
-        .aurora-btn {
-          background: #0a0a0a !important;
-          border: 1px solid rgba(255, 255, 255, 0.22) !important;
-          color: rgba(255, 255, 255, 0.85) !important;
-          box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
-          transition: all 0.3s ease;
-        }
-        .aurora-btn:hover {
-          background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
-                      linear-gradient(135deg, #a855f7, #db2777, #3b82f6) border-box !important;
-          border: 1px solid transparent !important;
-          color: #fff !important;
-          box-shadow: 0 0 25px rgba(219, 39, 119, 0.6), inset 0 0 4px rgba(219, 39, 119, 0.2);
-          animation: aurora-btn-glow 6s ease infinite;
-          transform: translateY(-1px);
-        }
-        @keyframes aurora-btn-glow {
-          0%, 100% {
-            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
-                        linear-gradient(135deg, #a855f7, #db2777, #3b82f6) border-box;
-            box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
-          }
-          50% {
-            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
-                        linear-gradient(135deg, #3b82f6, #a855f7, #db2777) border-box;
-            box-shadow: 0 0 22px rgba(219, 39, 119, 0.5);
-          }
-        }
-      `}</style>
-
       <Header />
 
       {/* Purple WebGL Aurora Background */}
@@ -304,20 +124,7 @@ const Page = () => {
                 textAlign="left"
               />
               {" "}
-              <SplitText
-                text="hassle"
-                tag="span"
-                className="hero-heading-purple"
-                delay={80}
-                duration={0.6}
-                ease="power3.out"
-                splitType="chars"
-                from={{ opacity: 0, y: 40 }}
-                to={{ opacity: 1, y: 0 }}
-                threshold={0.1}
-                rootMargin="-50px"
-                textAlign="left"
-              />
+              <MorphingWord />
             </h1>
           </div>
 
