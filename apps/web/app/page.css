@@ -227,10 +227,10 @@ body{
   padding: 1.5px;
   background: conic-gradient(
     from var(--angle),
-    #7c3aed,
-    #db2777,
-    #1e1b4b,
-    #7c3aed
+    transparent 0deg,
+    #7c3aed 20deg,
+    #db2777 40deg,
+    transparent 60deg
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -245,6 +245,13 @@ body{
 }
 
 .gradient-border-btn.revert::before {
+  background: conic-gradient(
+    from var(--angle),
+    transparent 0deg,
+    #db2777 20deg,
+    #7c3aed 40deg,
+    transparent 60deg
+  );
   animation: spin-ccw 3s linear infinite;
 }
 
