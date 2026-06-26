@@ -1,9 +1,10 @@
 "use client"
 import React from "react";
 import { Header } from "../components/Header/Header";
-import Aurora from "../components/Aurora/Aurora";
-import LandingHeroText from "../components/LandingHeroText/LandingHeroText";
-import LandingCodeWindow from "../components/LandingCodeWindow/LandingCodeWindow";
+import Aurora from "../components/landing/Aurora";
+import LandingHeroText from "../components/landing/LandingHeroText";
+import LandingCodeWindow from "../components/landing/LandingCodeWindow";
+import ReviewFeatureSection from "../components/landing/ReviewFeatureSection";
 import "./page.css";
 
 const Page = () => {
@@ -12,8 +13,9 @@ const Page = () => {
       style={{
         position: "relative",
         width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
+        minHeight: "100vh",
+        overflowY: "auto",
+        overflowX: "hidden",
         backgroundColor: "#000",
       }}
     >
@@ -30,6 +32,7 @@ const Page = () => {
         <div className="aurora-noise" />
       </div>
 
+      {/* Hero Section */}
       <div
         style={{
           position: "relative",
@@ -37,7 +40,7 @@ const Page = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          height: "100%",
+          minHeight: "100vh",
           padding: "0 80px",
           gap: "48px",
           pointerEvents: "none",
@@ -46,6 +49,9 @@ const Page = () => {
         <LandingHeroText />
         <LandingCodeWindow />
       </div>
+
+      {/* Next Section: Code Review Diff Feature Section */}
+      <ReviewFeatureSection />
     </div>
   );
 };
