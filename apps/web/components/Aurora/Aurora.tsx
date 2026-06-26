@@ -97,15 +97,17 @@ void main() {
   vec3 rampColor;
   COLOR_RAMP(colors, uv.x, rampColor);
   
-  // Shift noise coordinate based on mouse position and faster time factor
-  float noise = snoise(vec2(uv.x * 1.5 + uTime * 0.35 + uMouse.x * 0.2, uTime * 0.22 + uMouse.y * 0.2)) * 0.55 * uAmplitude;
+  // Original React Bits floating aurora with subtle mouse influence
+  float height = snoise(vec2(
+    uv.x * 2.0 + uTime * 0.1 + uMouse.x * 0.15,
+    uTime * 0.25 + uMouse.y * 0.1
+  )) * 0.5 * uAmplitude;
+  height = exp(height);
+  height = (uv.y * 2.0 - height + 0.2);
+  float intensity = 0.6 * height;
   
-  // Waves descend from the top (uv.y = 1.0) and fall downward
-  float wave = (1.0 - uv.y) - (0.0 + noise * 0.3 + (1.0 - uMouse.y) * 0.08);
-  
-  // A larger transition limit (1.25) allows the waves to fall much deeper down the page
-  float intensity = smoothstep(1.25, 0.0, wave);
-  float auroraAlpha = intensity * uBlend;
+  float midPoint = 0.20;
+  float auroraAlpha = smoothstep(midPoint - uBlend * 0.5, midPoint + uBlend * 0.5, intensity);
   
   vec3 auroraColor = intensity * rampColor;
   
@@ -200,7 +202,7 @@ export default function Aurora(props: AuroraProps) {
       mouse.y += (mouse.targetY - mouse.y) * 0.035;
 
       if (program) {
-        program.uniforms.uTime.value = t * 0.001 * speed;
+        program.uniforms.uTime.value = t * 0.01 * speed * 0.1;
         program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
         program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
         program.uniforms.uMouse.value = [mouse.x, mouse.y];
