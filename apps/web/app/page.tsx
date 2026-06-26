@@ -5,6 +5,7 @@ import Aurora from "../components/landing/Aurora";
 import LandingHeroText from "../components/landing/LandingHeroText";
 import LandingCodeWindow from "../components/landing/LandingCodeWindow";
 import ReviewFeatureSection from "../components/landing/ReviewFeatureSection";
+import RinFeaturesSection from "../components/landing/RinFeaturesSection";
 import "./page.css";
 
 const Page = () => {
@@ -52,6 +53,7 @@ const Page = () => {
 
       {/* Next Section: Code Review Diff Feature Section */}
       <ReviewFeatureSection />
+      <RinFeaturesSection />
     </div>
   );
 };
