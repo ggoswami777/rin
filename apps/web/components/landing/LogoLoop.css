@@ -1,0 +1,124 @@
+.logoloop {
+  overflow: hidden;
+  width: 100%;
+}
+
+.logoloop--horizontal .logoloop__track {
+  display: flex;
+  flex-direction: row;
+  width: max-content;
+  will-change: transform;
+}
+
+.logoloop--vertical .logoloop__track {
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  will-change: transform;
+}
+
+.logoloop__list {
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--logoloop-gap, 32px);
+  align-items: center;
+  
+  /* FIX: Inject the spacing gap at the end of the horizontal list before the next list starts */
+  padding-right: var(--logoloop-gap, 32px);
+}
+
+.logoloop--vertical .logoloop__list {
+  flex-direction: column;
+  
+  /* FIX: Shift padding to the bottom for seamless vertical infinite loops */
+  padding-right: 0;
+  padding-bottom: var(--logoloop-gap, 32px);
+}
+
+.logoloop__item {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: var(--logoloop-logoHeight, 28px);
+}
+
+.logoloop__item img {
+  height: var(--logoloop-logoHeight, 28px);
+  width: auto;
+  object-fit: contain;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.logoloop__item img:hover,
+.logoloop--scale-hover .logoloop__item img:hover {
+  opacity: 1;
+}
+
+.logoloop--scale-hover .logoloop__item:hover img {
+  transform: scale(1.1);
+}
+
+
+.logoloop--scale-hover .logoloop__item:hover .logoloop__node {
+  transform: scale(1.1);
+}
+
+.logoloop__link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoloop__node {
+  display: flex;
+  align-items: center;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+
+.logoloop__item:hover .logoloop__node,
+.logoloop__node:hover {
+  opacity: 1;
+}
+
+.logoloop--fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+}
+
+
+.logoloop--fade.logoloop--vertical {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+}
