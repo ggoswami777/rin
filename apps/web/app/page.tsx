@@ -8,6 +8,7 @@ import ReviewFeatureSection from "../components/landing/ReviewFeatureSection";
 import AIModelsSection from "../components/landing/AIModelsSection";
 import RinFeaturesSection from "../components/landing/RinFeaturesSection";
 import "./page.css";
+import PricingSection from "../components/landing/PricingSection";
 
 const Page = () => {
   return (
@@ -56,6 +57,7 @@ const Page = () => {
       <ReviewFeatureSection />
       <AIModelsSection />
       <RinFeaturesSection />
+      <PricingSection/>
     </div>
   );
 };
