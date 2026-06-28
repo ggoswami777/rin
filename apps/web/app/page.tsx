@@ -9,6 +9,7 @@ import AIModelsSection from "../components/landing/AIModelsSection";
 import RinFeaturesSection from "../components/landing/RinFeaturesSection";
 import "./page.css";
 import PricingSection from "../components/landing/PricingSection";
+import Footer from "../components/landing/Footer";
 
 const Page = () => {
   return (
@@ -58,6 +59,7 @@ const Page = () => {
       <AIModelsSection />
       <RinFeaturesSection />
       <PricingSection/>
+      <Footer/>
     </div>
   );
 };
