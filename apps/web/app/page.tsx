@@ -53,8 +53,6 @@ const Page = () => {
         <LandingHeroText />
         <LandingCodeWindow />
       </div>
-
-      {/* Next Section: Code Review Diff Feature Section */}
       <ReviewFeatureSection />
       <AIModelsSection />
       <RinFeaturesSection />
