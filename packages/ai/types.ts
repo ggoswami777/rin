@@ -1,4 +1,4 @@
-export type AIProvider= 'CLAUDE' | 'OPENAI' | 'GEMINI' | 'OLAMA'
+export type AIProvider= 'CLAUDE' | 'OPENAI' | 'GEMINI' | 'OLLAMA'
 
 export interface ReviewIssue{
     severity: 'critical' | 'high' | 'medium' | 'low'
