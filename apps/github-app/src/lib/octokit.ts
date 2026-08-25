@@ -1,4 +1,5 @@
 import { App } from '@octokit/app'
+import { Octokit } from '@octokit/rest'
 
 export const githubApp = new App({
   appId: process.env.GITHUB_APP_ID!,
@@ -7,4 +8,5 @@ export const githubApp = new App({
   webhooks: {
     secret: process.env.GITHUB_WEBHOOK_SECRET!,
   },
+  Octokit: Octokit,
 })
