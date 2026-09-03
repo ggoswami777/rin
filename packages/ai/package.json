@@ -1,15 +1,25 @@
 {
   "name": "@rin/ai",
   "version": "0.0.1",
-  "description": "",
-  "main": "./index.js",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
   "scripts": {
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.24.1",
+    "openai": "^4.86.1"
+  },
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "@repo/typescript-config": "*",
+    "@types/node": "^22.15.3",
+    "typescript": "5.9.2"
   }
 }
