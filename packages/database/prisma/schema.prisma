@@ -7,6 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
+// --------------------------------------------------------
+// Enums
+// --------------------------------------------------------
+
 enum Tier {
   FREE
   PRO
@@ -28,38 +32,84 @@ enum SubscriptionStatus {
   INCOMPLETE
 }
 
-model User {
-  id        String   @id @default(cuid())
-  githubId  String   @unique
-  email     String?  @unique
-  username  String?
-  avatarUrl String?
-  tier      Tier     @default(FREE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  installations Installation[]
-  apiKeys       ApiKey[]
-  subscription  Subscription?
-
-  @@map("users")
+enum ReviewStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
-model Installation {
-  id                   String   @id @default(cuid())
-  userId               String
-  githubInstallationId String   @unique
-  accountLogin         String
-  repoIds              String[]
-  active               Boolean  @default(true)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+// --------------------------------------------------------
+// NextAuth Models (Items 2 & 3)
+// --------------------------------------------------------
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reviews Review[]
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("installations")
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// --------------------------------------------------------
+// User & Auth Entities (Item 3)
+// --------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  githubId      String?   @unique
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  username      String?
+  avatarUrl     String?
+  tier          Tier      @default(FREE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  installations  Installation[]
+  apiKeys        ApiKey[]
+  subscription   Subscription?
+  documents      UserDocument[]
+  reviewPatterns ReviewPattern[]
+
+  @@map("users")
 }
 
 model ApiKey {
@@ -78,23 +128,6 @@ model ApiKey {
   @@map("api_keys")
 }
 
-model Review {
-  id             String   @id @default(cuid())
-  installationId String
-  prNumber       Int
-  repoName       String
-  issues         Json
-  summary        String
-  score          Int
-  createdAt      DateTime @default(now())
-
-  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
-
-  @@index([installationId])
-  @@index([repoName, prNumber])
-  @@map("reviews")
-}
-
 model Subscription {
   id        String             @id @default(cuid())
   userId    String             @unique
@@ -107,4 +140,203 @@ model Subscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+// --------------------------------------------------------
+// GitHub App & Repository Management (Items 4 & 5)
+// --------------------------------------------------------
+
+model Installation {
+  id                   String   @id @default(cuid())
+  userId               String
+  githubInstallationId String   @unique
+  accountLogin         String
+  accountType          String?
+  repoIds              String[]
+  active               Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviews      Review[]
+  repositories Repository[]
+
+  @@index([userId])
+  @@map("installations")
+}
+
+model Repository {
+  id               String   @id @default(cuid())
+  installationId   String
+  githubRepoId     String   @unique
+  fullName         String
+  owner            String
+  name             String
+  private          Boolean  @default(false)
+  defaultBranch    String   @default("main")
+  enabled          Boolean  @default(true)
+  tierLockedReason String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  repoIndex    RepoIndex?
+  codeChunks   CodeChunk[]
+
+  @@index([installationId])
+  @@map("repositories")
+}
+
+// --------------------------------------------------------
+// Reviews & Comments (Items 6, 7, 8)
+// --------------------------------------------------------
+
+model Review {
+  id             String       @id @default(cuid())
+  installationId String
+  status         ReviewStatus @default(COMPLETED)
+  provider       Provider?
+  commitSha      String?
+  prNumber       Int
+  repoName       String
+  issues         Json
+  summary        String
+  score          Int
+  confidence     Float?
+  durationMs     Int?
+  errorMessage   String?
+  createdAt      DateTime     @default(now())
+
+  installation Installation    @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  comments     ReviewComment[]
+
+  @@index([installationId])
+  @@index([repoName, prNumber])
+  @@map("reviews")
+}
+
+model ReviewComment {
+  id           String   @id @default(cuid())
+  reviewId     String
+  severity     String
+  category     String
+  file         String
+  line         Int?
+  description  String
+  suggestedFix String?
+  fixStatus    String?  @default("PENDING")
+  createdAt    DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@map("review_comments")
+}
+
+// --------------------------------------------------------
+// Code Indexing & Semantic Search (Items 9 & 10)
+// --------------------------------------------------------
+
+model RepoIndex {
+  id            String    @id @default(cuid())
+  repositoryId  String    @unique
+  status        String    @default("PENDING")
+  lastIndexedAt DateTime?
+  lastCommitSha String?
+  chunkCount    Int       @default(0)
+  errorMessage  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@map("repo_indexes")
+}
+
+model CodeChunk {
+  id           String   @id @default(cuid())
+  repositoryId String
+  filePath     String
+  language     String
+  content      String   @db.Text
+  startLine    Int
+  endLine      Int
+  contentHash  String
+  // Vector embedding strategy: Json stores embedding vectors [0.012, ...] universally.
+  // (If pgvector extension is enabled in Postgres, you can also use: Unsupported("vector(1536)")?)
+  embedding    Json?
+  createdAt    DateTime @default(now())
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId])
+  @@index([repositoryId, filePath])
+  @@map("code_chunks")
+}
+
+// --------------------------------------------------------
+// Custom Documents & Knowledge Base (Items 11 & 12)
+// --------------------------------------------------------
+
+model UserDocument {
+  id          String   @id @default(cuid())
+  userId      String
+  fileName    String
+  storagePath String
+  mimeType    String
+  status      String   @default("PENDING")
+  uploadedAt  DateTime @default(now())
+
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks DocumentChunk[]
+
+  @@index([userId])
+  @@map("user_documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  content    String   @db.Text
+  embedding  Json?
+  createdAt  DateTime @default(now())
+
+  document UserDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_chunks")
+}
+
+// --------------------------------------------------------
+// Learning & Pattern Storage (Item 13)
+// --------------------------------------------------------
+
+model ReviewPattern {
+  id          String   @id @default(cuid())
+  userId      String?
+  category    String
+  description String
+  fix         String   @db.Text
+  embedding   Json?
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("review_patterns")
+}
+
+// --------------------------------------------------------
+// Webhook Idempotency (Item 14)
+// --------------------------------------------------------
+
+model WebhookEvent {
+  id                String   @id @default(cuid())
+  githubDeliveryId  String   @unique
+  eventName         String
+  processedAt       DateTime @default(now())
+
+  @@index([githubDeliveryId])
+  @@map("webhook_events")
 }
